@@ -1,0 +1,24 @@
+file:
+  storage-dir: "filestorage/images/"
+  client-dir: "/images/**"
+spring:
+  application:
+    name: attribute-converter-18-05-2024
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jwt-day2
+    username: postgres
+    password: "010104"
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    generate-ddl: true
+
+springdoc:
+  swagger-ui:
+    path: /api
+
+server:
+  port: 8080  # Add your desired port number here

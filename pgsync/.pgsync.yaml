@@ -1,0 +1,50 @@
+database_url: postgres://postgres:010104@postgres:5432/postgres
+schema: public
+tables:
+  - students
+target: custom
+script: |
+  require 'elasticsearch'
+  require 'logger'
+  require 'pg'
+
+  # Set up logger
+  logger = Logger.new(STDOUT)
+  logger.level = Logger::DEBUG
+
+  begin
+    # Check database connection
+    connection = PG.connect(
+      dbname: 'postgres',
+      user: 'postgres',
+      password: '010104',
+      host: 'postgres',
+      port: 5432
+    )
+    result = connection.exec('SELECT * FROM students')
+    logger.debug("Database rows: #{result.to_a}")
+
+    client = Elasticsearch::Client.new(url: 'http://elasticsearch:9200')
+    documents = result.map do |row|
+      logger.debug("Processing row: #{row.inspect}")
+      {
+        index: {
+          _index: 'user',
+          _type: '_doc',
+          _id: row['id'],
+          data: {
+            id: row['id'],
+           name:row['name'],
+  
+  
+          }
+        }
+      }
+    end
+    response = client.bulk(body: documents)
+    logger.debug("Bulk insert response: #{response}")
+    connection.close
+  rescue => e
+    logger.error("Error during sync: #{e.message}")
+    raise
+  end
